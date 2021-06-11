@@ -76,7 +76,7 @@ class Moderación(commands.Cog):
             await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
             await ctx.reply(content=f':white_check_mark: **{ctx.channel}** ha sido desbloqueado para todos los usuarios.', mention_author=False)
         except Exception as e:
-            await ctx.reply(content=e, mention_author=False)
+            await ctx.reply(content=f':x: **{e}**', mention_author=False)
 
 def setup(bot):
     bot.add_cog(Moderación(bot))
