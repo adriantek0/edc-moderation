@@ -34,6 +34,26 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
+    @permissions.has_permissions(ban_members=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def unban(self, ctx, *, member_id: int):
+        """ Desbanea a un usuario del servidor. """
+
+        try:
+            await ctx.guild.unban(discord.Object(id=member_id))
+            await ctx.reply(content=f':white_check_mark: **<@{member_id}>** ha sido desbaneado del servidor.', mention_author=False)
+
+            embed = discord.Embed()
+            embed.set_author(name='Nuevo unban', icon_url=ctx.guild.icon_url)
+            embed.add_field(name='Usuario', value=member_id, inline=True)
+            embed.add_field(name='Moderador', value=ctx.author, inline=True)
+            embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
+            await self.channel.send(embed=embed)
+        except Exception as e:
+            await ctx.reply(content=e, mention_author=False)
+
+    @commands.command()
+    @commands.guild_only()
     @permissions.has_permissions(kick_members=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason: str = None):

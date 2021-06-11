@@ -2,7 +2,7 @@ import discord
 import psutil
 import os
 
-from utils import default
+from utils import permissions, default
 from discord.ext import commands
 
 class Información(commands.Cog):
@@ -35,6 +35,14 @@ class Información(commands.Cog):
         embed.add_field(name='Memoria', value=f'{ramUsage:.2f} MB / 16GB', inline=True)
         embed.add_field(name='Latencia', value=f'Websocket: {before_ws}ms')
         await ctx.reply(content='ℹ Sobre **{0}** | **{1}**'.format(self.name, self.version), embed=embed, mention_author=False)
+
+    @commands.command()
+    @commands.guild_only()
+    @permissions.has_permissions(administrator=True)
+    async def hi(self, ctx):
+        """ soplacalvos """
+
+        await ctx.reply(content='jaja se me calman', mention_author=False)
 
 def setup(bot):
     bot.add_cog(Información(bot))
