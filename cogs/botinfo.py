@@ -15,7 +15,6 @@ class Información(commands.Cog):
         self.process = psutil.Process(os.getpid())
 
     @commands.command(aliases=['stats', 'botinfo'])
-    @commands.guild_only()
     async def about(self, ctx):
         """ Obtén algunas estadísticas del bot. """
 

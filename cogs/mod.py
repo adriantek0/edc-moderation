@@ -10,6 +10,7 @@ class Moderación(commands.Cog):
         self.name = self.config['name']
         self.version = self.config['version']
         self.guild = self.config['guild']
+        self.channel = self.bot.get_channel(852887722187685928)
 
     @commands.command()
     @commands.guild_only()
@@ -21,6 +22,13 @@ class Moderación(commands.Cog):
         try:
             await member.ban(reason=default.responsible(ctx.author, reason))
             await ctx.reply(content=':white_check_mark: **{0}** ha sido baneado del servidor.'.format(member), mention_author=False)
+
+            embed = discord.Embed()
+            embed.set_author(name='Nuevo ban', icon_url=ctx.guild.icon_url)
+            embed.add_field(name='Usuario', value=member, inline=True)
+            embed.add_field(name='Moderador', value=ctx.author, inline=True)
+            embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
+            await self.channel.send(embed=embed)
         except Exception as e:
             await ctx.reply(content=e, mention_author=False)
 
@@ -34,6 +42,13 @@ class Moderación(commands.Cog):
         try:
             await member.kick(reason=default.responsible(ctx.author, reason))
             await ctx.reply(content=':white_check_mark: **{0}** ha sido expulsado del servidor.'.format(member), mention_author=False)
+
+            embed = discord.Embed()
+            embed.set_author(name='Nuevo kick', icon_url=ctx.guild.icon_url)
+            embed.add_field(name='Usuario', value=member, inline=True)
+            embed.add_field(name='Moderador', value=ctx.author, inline=True)
+            embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
+            await self.channel.send(embed=embed)
         except Exception as e:
             await ctx.reply(content=e, mention_author=False)
 
