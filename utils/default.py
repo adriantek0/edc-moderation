@@ -1,5 +1,4 @@
 import json
-from database import config
 
 def config(filename: str = "config"):
     """ Fetch default config file """
