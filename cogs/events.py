@@ -17,6 +17,9 @@ class Events(commands.Cog):
             helper = str(ctx.invoked_subcommand) if ctx.invoked_subcommand else str(ctx.command)
             await ctx.send_help(helper)
 
+        if isinstance(err, errors.CommandOnCooldown):
+            await ctx.reply(content=f':x: Weon, el comando está en cooldown, ¿cachai?. Vuelve a ejecutarlo en **{err.retry_after:.2f}s**', mention_author=False)
+
     @commands.Cog.listener()
     async def on_command(self, ctx):
         try:
