@@ -1,6 +1,6 @@
 import discord
 import numpy as np
-from utils import default
+from utils import default, permissions
 
 from ro_py.client import Client
 roblox = Client(default.config()['roblox'])
@@ -8,7 +8,6 @@ roblox = Client(default.config()['roblox'])
 from discord.ext import commands
 from discord.utils import escape_markdown
 from ro_py.thumbnails import ThumbnailSize, ThumbnailType
-from discord.ext.commands import has_permissions
 
 class Roblox(commands.Cog):
     def __init__(self, bot):
@@ -44,9 +43,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def shout(self, ctx, *, shout_text):
         """ Envia un shout al grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
@@ -57,9 +58,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def exile(self, ctx, username):
         """ Exilia a un usuario """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
@@ -71,9 +74,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def promote(self, ctx, username):
         """ Promotea a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
@@ -85,9 +90,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def demote(self, ctx, username):
         """ Demotea a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
@@ -99,9 +106,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def setrank(self, ctx, username, rank: int):
         """ Establece un rango a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
@@ -116,9 +125,11 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    @has_permissions(administrator=True)
     async def setrole(self, ctx, username, rank: int):
         """ Establece un rango a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
 
         try:
             group = await roblox.get_group(self.group)
