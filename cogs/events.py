@@ -1,3 +1,5 @@
+import discord 
+
 from utils import default
 from discord.ext import commands
 from discord.ext.commands import errors
@@ -9,6 +11,12 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        await self.bot.change_presence(
+            activity=discord.Game(
+                name='ROBLOX'
+            ),
+            status=discord.Status.idle
+        )
         print(f'{self.bot.user} ready!')
 
     @commands.Cog.listener()
@@ -19,13 +27,6 @@ class Events(commands.Cog):
 
         if isinstance(err, errors.CommandOnCooldown):
             await ctx.reply(content=f':x: Weon, el comando está en cooldown, ¿cachai?. Vuelve a ejecutarlo en **{err.retry_after:.2f}s**', mention_author=False)
-
-    @commands.Cog.listener()
-    async def on_command(self, ctx):
-        try:
-            print(f"{ctx.guild.name} > {ctx.author} > {ctx.message.clean_content}")
-        except AttributeError:
-            print(f"Private message > {ctx.author} > {ctx.message.clean_content}")
 
 def setup(bot):
     bot.add_cog(Events(bot))

@@ -9,10 +9,10 @@ bot = commands.Bot(
     prefix=config['prefix'],
     owner_ids=config['owners'],
     description=config['description'],
-    activity=discord.Activity(name=f"{config['prefix']}help"),
     intents=discord.Intents(
         guilds=True, members=True, messages=True, reactions=True, presences=True
-    )
+    ),
+    case_insensitive=True
 )
 
 for file in os.listdir('cogs'):
