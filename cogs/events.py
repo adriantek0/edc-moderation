@@ -13,7 +13,7 @@ class Events(commands.Cog):
     async def on_ready(self):
         await self.bot.change_presence(
             activity=discord.Game(
-                name='ROBLOX [Made by AdriánTek]'
+                name='ROBLOX [edc help]'
             ),
             status=discord.Status.idle
         )
