@@ -2,7 +2,8 @@ import discord
 import psutil
 import os
 
-from utils import permissions, default
+from utils import default
+from discord.ext.commands import has_permissions
 from discord.ext import commands
 
 class Información(commands.Cog):
@@ -38,7 +39,7 @@ class Información(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(administrator=True)
+    @has_permissions(administrator=True)
     async def hi(self, ctx):
         """ soplacalvos """
 

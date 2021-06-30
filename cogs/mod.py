@@ -1,7 +1,8 @@
 import discord
 
-from utils import permissions, default
+from utils import default
 from discord.ext import commands
+from discord.ext.commands import has_permissions
 
 class Moderación(commands.Cog):
     def __init__(self, bot):
@@ -14,7 +15,7 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(ban_members=True)
+    @has_permissions(ban_members=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason: str = None):
         """ Banea a un usuario del servidor. """
@@ -34,7 +35,7 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(ban_members=True)
+    @has_permissions(ban_members=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def unban(self, ctx, *, member_id: int):
         """ Desbanea a un usuario del servidor. """
@@ -54,7 +55,7 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(kick_members=True)
+    @has_permissions(kick_members=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason: str = None):
         """ Expulsa a un usuario del servidor. """
@@ -74,7 +75,7 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(manage_channels=True)
+    @has_permissions(manage_channels=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def lockdown(self, ctx):
         """ Bloquea un canal a todos los miembros. """
@@ -87,7 +88,7 @@ class Moderación(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    @permissions.has_permissions(manage_channels=True)
+    @has_permissions(manage_channels=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def unlock(self, ctx):
         """ Desbloquea un canal a todos los miembros. """

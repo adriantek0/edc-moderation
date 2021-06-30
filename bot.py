@@ -8,7 +8,6 @@ bot = commands.Bot(
     command_prefix=config['prefix'],
     prefix=config['prefix'],
     owner_ids=config['owners'],
-    description=config['description'],
     intents=discord.Intents(
         guilds=True, members=True, messages=True, reactions=True, presences=True
     ),
