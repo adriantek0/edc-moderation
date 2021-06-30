@@ -26,7 +26,7 @@ class Events(commands.Cog):
             await ctx.send_help(helper)
 
         if isinstance(err, errors.CommandOnCooldown):
-            await ctx.reply(content=f':x: Weon, el comando está en cooldown, ¿cachai?. Vuelve a ejecutarlo en **{err.retry_after:.2f}s**', mention_author=False)
+            await ctx.send(content=f':x: Weon, el comando está en cooldown, ¿cachai?. Vuelve a ejecutarlo en **{err.retry_after:.2f}s**', mention_author=False)
 
 def setup(bot):
     bot.add_cog(Events(bot))

@@ -12,6 +12,12 @@ class Moderación(commands.Cog):
         self.version = self.config['version']
         self.guild = self.config['guild']
         self.channel = self.bot.get_channel(852887722187685928)
+        self.states = {}
+
+    def are_overwrites_empty(self, overwrites):
+        original = [p for p in iter(overwrites)]
+        empty = [p for p in iter(discord.PermissionOverwrite())]
+        return original == empty
 
     @commands.command()
     @commands.guild_only()
@@ -22,7 +28,7 @@ class Moderación(commands.Cog):
 
         try:
             await member.ban(reason=default.responsible(ctx.author, reason))
-            await ctx.reply(content=':white_check_mark: **{0}** ha sido baneado del servidor.'.format(member), mention_author=False)
+            await ctx.send(content=':white_check_mark: **{0}** ha sido baneado del servidor.'.format(member), mention_author=False)
 
             embed = discord.Embed()
             embed.set_author(name='Nuevo ban', icon_url=ctx.guild.icon_url)
@@ -31,7 +37,7 @@ class Moderación(commands.Cog):
             embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
             await self.channel.send(embed=embed)
         except Exception as e:
-            await ctx.reply(content=e, mention_author=False)
+            await ctx.send(content=e, mention_author=False)
 
     @commands.command()
     @commands.guild_only()
@@ -42,7 +48,7 @@ class Moderación(commands.Cog):
 
         try:
             await ctx.guild.unban(discord.Object(id=member_id))
-            await ctx.reply(content=f':white_check_mark: **<@{member_id}>** ha sido desbaneado del servidor.', mention_author=False)
+            await ctx.send(content=f':white_check_mark: **<@{member_id}>** ha sido desbaneado del servidor.', mention_author=False)
 
             embed = discord.Embed()
             embed.set_author(name='Nuevo unban', icon_url=ctx.guild.icon_url)
@@ -51,7 +57,7 @@ class Moderación(commands.Cog):
             embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
             await self.channel.send(embed=embed)
         except Exception as e:
-            await ctx.reply(content=e, mention_author=False)
+            await ctx.send(content=e, mention_author=False)
 
     @commands.command()
     @commands.guild_only()
@@ -62,7 +68,7 @@ class Moderación(commands.Cog):
 
         try:
             await member.kick(reason=default.responsible(ctx.author, reason))
-            await ctx.reply(content=':white_check_mark: **{0}** ha sido expulsado del servidor.'.format(member), mention_author=False)
+            await ctx.send(content=':white_check_mark: **{0}** ha sido expulsado del servidor.'.format(member), mention_author=False)
 
             embed = discord.Embed()
             embed.set_author(name='Nuevo kick', icon_url=ctx.guild.icon_url)
@@ -71,7 +77,7 @@ class Moderación(commands.Cog):
             embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
             await self.channel.send(embed=embed)
         except Exception as e:
-            await ctx.reply(content=e, mention_author=False)
+            await ctx.send(content=e, mention_author=False)
 
     @commands.command()
     @commands.guild_only()
@@ -81,10 +87,22 @@ class Moderación(commands.Cog):
         """ Bloquea un canal a todos los miembros. """
 
         try:
-            await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
-            await ctx.reply(content=f':white_check_mark: **{ctx.channel}** ha sido bloqueado para todos los usuarios.', mention_author=False)
+            server = ctx.message.guild
+            overwrites_everyone = ctx.message.channel.overwrites_for(server.default_role)
+            overwrites_owner = ctx.message.channel.overwrites_for(server.role_hierarchy[0])
+            if ctx.message.channel.id in self.states:
+                await ctx.send(content='🔒 El canal ya está bloqueado. Utilice `unlock` para desbloquear.', mention_author=False)
+                return
+            states = []
+            for a in ctx.message.guild.role_hierarchy:
+                states.append([a, ctx.message.channel.overwrites_for(a).send_messages])
+            self.states[ctx.message.channel.id] = states
+            overwrites_owner.send_messages = True
+            overwrites_everyone.send_messages = False
+            await ctx.message.channel.set_permissions(server.default_role, overwrite=overwrites_everyone)
+            await ctx.send(content='🔒 Canal bloqueado.', mention_author=False)
         except Exception as e:
-            await ctx.reply(content=e, mention_author=False)
+            await ctx.send(content=f':x: {e}', mention_author=False)
 
     @commands.command()
     @commands.guild_only()
@@ -94,10 +112,78 @@ class Moderación(commands.Cog):
         """ Desbloquea un canal a todos los miembros. """
 
         try:
-            await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
-            await ctx.reply(content=f':white_check_mark: **{ctx.channel}** ha sido desbloqueado para todos los usuarios.', mention_author=False)
+            if not ctx.message.channel.id in self.states:
+                await ctx.send(content='🔓 El canal ya está desbloqueado.', mention_author=False)
+                return
+            for a in self.states[ctx.message.channel.id]:
+                overwrites_a = ctx.message.channel.overwrites_for(a[0])
+                overwrites_a.send_messages = a[1]
+                await ctx.message.channel.set_permissions(a[0], overwrite=overwrites_a)
+            self.states.pop(ctx.message.channel.id)
+            await ctx.send(content='🔓 Canal desbloqueado.', mention_author=False)
         except Exception as e:
-            await ctx.reply(content=f':x: **{e}**', mention_author=False)
+            await ctx.send(content=f':x: {e}', mention_author=False)
+    
+    @commands.command()
+    @commands.guild_only()
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def mute(self, ctx, member: discord.Member):
+        if ctx.invoked_subcommand is None:
+            if member and member != self.bot.user:
+                failed = []
+                channel_length = 0
+                for channel in ctx.message.guild.channels:
+                    if type(channel) != discord.channel.TextChannel:
+                        continue
+                    overwrites = channel.overwrites_for(member)
+                    overwrites.send_messages = False
+                    channel_length += 1
+                    try:
+                        await channel.set_permissions(member, overwrite=overwrites)
+                    except discord.Forbidden:
+                        failed.append(channel)
+                if failed and len(failed) < channel_length:
+                    await ctx.send(content=':white_check_mark: Usuario muteado en {}/{} canales.'.format(channel_length - len(failed), channel_length), mention_author=False)
+                elif failed:
+                    await ctx.send(content=':x: No se pudo silenciar al usuario. No hay suficientes permisos.', mention_author=False)
+                else:
+                    await ctx.send(content=':white_check_mark: Usuario muteado correctamente.', mention_author=False)
+            else:
+                await ctx.send(content=':x: No se pudo encontrar el usuario.', mention_author=False)
+
+    @commands.command()
+    @commands.guild_only()
+    @has_permissions(manage_guild=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def unmute(self, ctx, member: discord.Member):
+        if ctx.invoked_subcommand is None:
+            if member and member != self.bot.user:
+                failed = []
+                channel_length = 0
+                for channel in ctx.message.guild.channels:
+                    if type(channel) != discord.channel.TextChannel:
+                        continue
+                    overwrites = channel.overwrites_for(member)
+                    overwrites.send_messages = None
+                    channel_length += 1
+                    is_empty = self.are_overwrites_empty(overwrites)
+                    try:
+                        if not is_empty:
+                            await channel.set_permissions(member, overwrite=overwrites)
+                        else:
+                            await channel.set_permissions(member, overwrite=None)
+                        await channel.set_permissions(member, overwrite=overwrites)
+                    except discord.Forbidden:
+                        failed.append(channel)
+                if failed and len(failed) < channel_length:
+                    await ctx.send(content=':white_check_mark: Usuario desmuteado en {}/{} canales.'.format(channel_length - len(failed), channel_length), mention_author=False)
+                elif failed:
+                    await ctx.send(content=':x: No se pudo desmutear al usuario. No hay suficientes permisos.', mention_author=False)
+                else:
+                    await ctx.send(content=':white_check_mark: Usuario desmuteado correctamente.', mention_author=False)
+            else:
+                await ctx.send(content=':x: No se pudo encontrar el usuario.', mention_author=False)
 
 def setup(bot):
     bot.add_cog(Moderación(bot))
