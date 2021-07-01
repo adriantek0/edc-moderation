@@ -22,3 +22,11 @@ def check_roblox(member):
         auth = True
     
     return auth
+
+def check_owner(member):
+    auth = False
+
+    if member.id in config['owners']:
+        auth = True
+    
+    return auth
