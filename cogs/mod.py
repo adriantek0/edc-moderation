@@ -200,5 +200,43 @@ class Moderación(commands.Cog):
             else:
                 await ctx.send(content=':x: No se pudo encontrar el usuario.', mention_author=False)
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def nickname(self, ctx, member: discord.Member, *, nick: str = None):
+        """ Cambia el apodo a un usuario del servidor """
+
+        if permissions.check_mod(ctx.message.author) is False:
+            return
+
+        try:
+            await member.edit(nick=nick)
+            if nick is None:
+                await ctx.send(content=f':white_check_mark: El apodo de **{member.name}\'s** ha sido reiniciado.')
+                return
+            await ctx.send(content=f':white_check_mark: El apodo de **{member.name}** fue cambiado a **{nick}**')
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.max_concurrency(1, per=commands.BucketType.user)
+    async def massban(self, ctx, *, members: discord.Member):
+        """ Banea múltiples usuarios del servidor """
+
+        if permissions.check_mod(ctx.message.author) is False:
+            return
+
+        description = '```diff\n'
+        for member in members:
+            try:
+                await ctx.guild.ban(discord.Object(id=member.id))
+                description += f'+ {member.name}#{member.discriminator} ha sido baneado correctamente.'
+            except:
+                description += f'- No he podido banear a {member.name}#{member.discriminator}.'
+        
+        description += '\n```'
+        await ctx.send(content=description)
+
 def setup(bot):
     bot.add_cog(Moderación(bot))
