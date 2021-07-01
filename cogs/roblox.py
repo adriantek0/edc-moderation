@@ -20,41 +20,19 @@ class Roblox(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def whois(self, ctx, username):
-        """ Obtén la información de un usuario de Roblox """
-
-        try:
-            user = await roblox.get_user_by_username(username)
-            embed = discord.Embed(color=7506394, title=f'Información de {user.name}')
-            embed.add_field(name='Nombre de usuario', value=f'`{user.name}`')
-            embed.add_field(name='Display name', value=f'`{user.display_name}`')
-            embed.add_field(name='ID', value=f'`{str(user.id)}`')
-            embed.add_field(name='Descripción', value=f'```{(escape_markdown(user.description or "No hay descripción."))}```')
-
-            avatar_image = await user.thumbnails.get_avatar_image(
-                shot_type=ThumbnailType.avatar_headshot,
-                size=ThumbnailSize.size_420x420,
-                is_circular=False
-            )
-            embed.set_thumbnail(url=avatar_image)
-            await ctx.send(embed=embed, mention_author=False)
-        except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
-
-    @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def shout(self, ctx, *, shout_text):
-        """ Envia un shout al grupo """
+    async def demote(self, ctx, username):
+        """ Demotea a un usuario del grupo """
 
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
         try:
             group = await roblox.get_group(self.group)
-            await group.shout(shout_text)
-            await ctx.send(content=':white_check_mark: Shout enviado.', mention_author=False)
+            member = await group.get_member_by_username(username)
+            await member.demote()
+            await ctx.send(content=':white_check_mark: Usuario demoteado correctamente.', mention_author=False)
         except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -70,7 +48,7 @@ class Roblox(commands.Cog):
             await member.exile()
             await ctx.send(content=':white_check_mark: Usuario exiliado correctamente.', mention_author=False)
         except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -86,80 +64,7 @@ class Roblox(commands.Cog):
             await member.promote()
             await ctx.send(content=':white_check_mark: Usuario promoteado correctamente.', mention_author=False)
         except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
-
-    @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def demote(self, ctx, username):
-        """ Demotea a un usuario del grupo """
-
-        if permissions.check_roblox(ctx.message.author) is False:
-            return
-
-        try:
-            group = await roblox.get_group(self.group)
-            member = await group.get_member_by_username(username)
-            await member.demote()
-            await ctx.send(content=':white_check_mark: Usuario demoteado correctamente.', mention_author=False)
-        except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
-
-    @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def setrank(self, ctx, username, rank: int):
-        """ Establece un rango a un usuario del grupo """
-
-        if permissions.check_roblox(ctx.message.author) is False:
-            return
-
-        try:
-            group = await roblox.get_group(self.group)
-            if 255 >= rank >= 1:
-                member = await group.get_member_by_username(username)
-                await member.setrole(rank)
-                await ctx.send(content=':white_check_mark: Usuario actualizado correctamente.', mention_author=False)
-            else:
-                await ctx.send(content=':x: El rango debe ser al menos 1 y como máximo 255.', mention_author=False)
-        except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
-
-    @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def setrole(self, ctx, username, rank: int):
-        """ Establece un rango a un usuario del grupo """
-
-        if permissions.check_roblox(ctx.message.author) is False:
-            return
-
-        try:
-            group = await roblox.get_group(self.group)
-            if 255 >= rank >= 1:
-                member = await group.get_member_by_username(username)
-                await member.setrank(rank)
-                await ctx.send(content=':white_check_mark: Usuario actualizado correctamente.', mention_author=False)
-            else:
-                await ctx.send(content=':x: El rango debe ser al menos 1 y como máximo 255.', mention_author=False)
-        except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
-
-    @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def ranks(self, ctx):
-        """ Muestra la lista de rangos del grupo """
-
-        try:
-            group = await roblox.get_group(self.group)
-            description = ''
-
-            roles = await group.get_roles()
-            for role in roles:
-                description += f'`Rank {role.rank} (ID: {role.id})` **{role.name}** ({role.member_count} miembro{"" if role.member_count == 1 else "s"})\n'
-
-            embed = discord.Embed(color=7506394, description=description)
-            await ctx.send(content='ℹ Rangos del grupo', embed=embed, mention_author=False)
-
-        except Exception as e:
-            await ctx.send(content=f':x: Ocurrió un error.```{e}```')
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -192,6 +97,101 @@ class Roblox(commands.Cog):
                 return
         except Exception as e:
             await ctx.send(content=f'```❌ {e}```', mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def setrank(self, ctx, username, rank: int):
+        """ Establece un rango a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
+
+        try:
+            group = await roblox.get_group(self.group)
+            if 255 >= rank >= 1:
+                member = await group.get_member_by_username(username)
+                await member.setrole(rank)
+                await ctx.send(content=':white_check_mark: Usuario actualizado correctamente.', mention_author=False)
+            else:
+                await ctx.send(content=':x: El rango debe ser al menos 1 y como máximo 255.', mention_author=False)
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def setrole(self, ctx, username, rank: int):
+        """ Establece un rango a un usuario del grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
+
+        try:
+            group = await roblox.get_group(self.group)
+            if 255 >= rank >= 1:
+                member = await group.get_member_by_username(username)
+                await member.setrank(rank)
+                await ctx.send(content=':white_check_mark: Usuario actualizado correctamente.', mention_author=False)
+            else:
+                await ctx.send(content=':x: El rango debe ser al menos 1 y como máximo 255.', mention_author=False)
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def shout(self, ctx, *, shout_text):
+        """ Envia un shout al grupo """
+
+        if permissions.check_roblox(ctx.message.author) is False:
+            return
+
+        try:
+            group = await roblox.get_group(self.group)
+            await group.shout(shout_text)
+            await ctx.send(content=':white_check_mark: Shout enviado.', mention_author=False)
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def whois(self, ctx, username):
+        """ Obtén la información de un usuario de Roblox """
+
+        try:
+            user = await roblox.get_user_by_username(username)
+            embed = discord.Embed(color=7506394, title=f'Información de {user.name}')
+            embed.add_field(name='Nombre de usuario', value=f'`{user.name}`')
+            embed.add_field(name='Display name', value=f'`{user.display_name}`')
+            embed.add_field(name='ID', value=f'`{str(user.id)}`')
+            embed.add_field(name='Descripción', value=f'```{(escape_markdown(user.description or "No hay descripción."))}```')
+
+            avatar_image = await user.thumbnails.get_avatar_image(
+                shot_type=ThumbnailType.avatar_headshot,
+                size=ThumbnailSize.size_420x420,
+                is_circular=False
+            )
+            embed.set_thumbnail(url=avatar_image)
+            await ctx.send(embed=embed, mention_author=False)
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def ranks(self, ctx):
+        """ Muestra la lista de rangos del grupo """
+
+        try:
+            group = await roblox.get_group(self.group)
+            description = ''
+
+            roles = await group.get_roles()
+            for role in roles:
+                description += f'`Rank {role.rank} (ID: {role.id})` **{role.name}** ({role.member_count} miembro{"" if role.member_count == 1 else "s"})\n'
+
+            embed = discord.Embed(color=7506394, description=description)
+            await ctx.send(content='**ℹ Rangos del grupo**', embed=embed, mention_author=False)
+
+        except Exception as e:
+            await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
         
 def setup(bot):
     bot.add_cog(Roblox(bot))

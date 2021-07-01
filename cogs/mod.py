@@ -43,28 +43,6 @@ class Moderación(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def unban(self, ctx, *, member_id: int):
-        """ Desbanea a un usuario del servidor. """
-
-        if permissions.check_mod(ctx.message.author) is False:
-            return
-
-        try:
-            await ctx.guild.unban(discord.Object(id=member_id))
-            await ctx.send(content=f':white_check_mark: **<@{member_id}>** ha sido desbaneado del servidor.', mention_author=False)
-
-            embed = discord.Embed()
-            embed.set_author(name='Nuevo unban', icon_url=ctx.guild.icon_url)
-            embed.add_field(name='Usuario', value=member_id, inline=True)
-            embed.add_field(name='Moderador', value=ctx.author, inline=True)
-            embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
-            await self.channel.send(embed=embed)
-        except Exception as e:
-            await ctx.send(content=e, mention_author=False)
-
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(1, 10, commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason: str = None):
         """ Expulsa a un usuario del servidor. """
 
@@ -114,28 +92,6 @@ class Moderación(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def unlock(self, ctx):
-        """ Desbloquea un canal a todos los miembros. """
-
-        if permissions.check_mod(ctx.message.author) is False:
-            return
-
-        try:
-            if not ctx.message.channel.id in self.states:
-                await ctx.send(content='🔓 El canal ya está desbloqueado.', mention_author=False)
-                return
-            for a in self.states[ctx.message.channel.id]:
-                overwrites_a = ctx.message.channel.overwrites_for(a[0])
-                overwrites_a.send_messages = a[1]
-                await ctx.message.channel.set_permissions(a[0], overwrite=overwrites_a)
-            self.states.pop(ctx.message.channel.id)
-            await ctx.send(content='🔓 Canal desbloqueado.', mention_author=False)
-        except Exception as e:
-            await ctx.send(content=f':x: {e}', mention_author=False)
-    
-    @commands.command()
-    @commands.guild_only()
-    @commands.cooldown(1, 10, commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member):
 
         if permissions.check_mod(ctx.message.author) is False:
@@ -164,6 +120,50 @@ class Moderación(commands.Cog):
             else:
                 await ctx.send(content=':x: No se pudo encontrar el usuario.', mention_author=False)
 
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def unban(self, ctx, *, member_id: int):
+        """ Desbanea a un usuario del servidor. """
+
+        if permissions.check_mod(ctx.message.author) is False:
+            return
+
+        try:
+            await ctx.guild.unban(discord.Object(id=member_id))
+            await ctx.send(content=f':white_check_mark: **<@{member_id}>** ha sido desbaneado del servidor.', mention_author=False)
+
+            embed = discord.Embed()
+            embed.set_author(name='Nuevo unban', icon_url=ctx.guild.icon_url)
+            embed.add_field(name='Usuario', value=member_id, inline=True)
+            embed.add_field(name='Moderador', value=ctx.author, inline=True)
+            embed.set_footer(text=self.bot.user, icon_url=self.bot.user.avatar_url)
+            await self.channel.send(embed=embed)
+        except Exception as e:
+            await ctx.send(content=e, mention_author=False)
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def unlock(self, ctx):
+        """ Desbloquea un canal a todos los miembros. """
+
+        if permissions.check_mod(ctx.message.author) is False:
+            return
+
+        try:
+            if not ctx.message.channel.id in self.states:
+                await ctx.send(content='🔓 El canal ya está desbloqueado.', mention_author=False)
+                return
+            for a in self.states[ctx.message.channel.id]:
+                overwrites_a = ctx.message.channel.overwrites_for(a[0])
+                overwrites_a.send_messages = a[1]
+                await ctx.message.channel.set_permissions(a[0], overwrite=overwrites_a)
+            self.states.pop(ctx.message.channel.id)
+            await ctx.send(content='🔓 Canal desbloqueado.', mention_author=False)
+        except Exception as e:
+            await ctx.send(content=f':x: {e}', mention_author=False)
+    
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
