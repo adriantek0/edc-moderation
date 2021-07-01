@@ -159,9 +159,9 @@ class Roblox(commands.Cog):
         try:
             user = await roblox.get_user_by_username(username)
             embed = discord.Embed(color=7506394, title=f'Información de {user.name}')
-            embed.add_field(name='Nombre de usuario', value=f'`{user.name}`')
-            embed.add_field(name='Display name', value=f'`{user.display_name}`')
-            embed.add_field(name='ID', value=f'`{str(user.id)}`')
+            embed.add_field(name='Nombre de usuario', value=user.name)
+            embed.add_field(name='Display name', value=user.display_name)
+            embed.add_field(name='ID', value=str(user.id))
             embed.add_field(name='Descripción', value=f'```{(escape_markdown(user.description or "No hay descripción."))}```')
 
             avatar_image = await user.thumbnails.get_avatar_image(
