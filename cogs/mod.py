@@ -23,8 +23,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason: str = None):
-        """ Banea a un usuario del servidor. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -45,8 +43,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason: str = None):
-        """ Expulsa a un usuario del servidor. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -67,8 +63,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def lockdown(self, ctx):
-        """ Bloquea un canal a todos los miembros. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -125,8 +119,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def unban(self, ctx, *, member_id: int):
-        """ Desbanea a un usuario del servidor. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -147,8 +139,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def unlock(self, ctx):
-        """ Desbloquea un canal a todos los miembros. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -205,8 +195,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nickname(self, ctx, member: discord.Member, *, nick: str = None):
-        """ Cambia el apodo a un usuario del servidor """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -223,8 +211,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.max_concurrency(1, per=commands.BucketType.user)
     async def massban(self, ctx, *, members: discord.Member):
-        """ Banea múltiples usuarios del servidor """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 
@@ -243,8 +229,6 @@ class Moderación(commands.Cog):
     @commands.guild_only()
     @commands.max_concurrency(1, per=commands.BucketType.guild)
     async def prune(self, ctx):
-        """ Borra mensajes del servidor. """
-
         if permissions.check_mod(ctx.message.author) is False:
             return
 

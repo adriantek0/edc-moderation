@@ -16,8 +16,6 @@ class Información(commands.Cog):
 
     @commands.command(aliases=['stats', 'botinfo'])
     async def about(self, ctx):
-        """ Obtén algunas estadísticas del bot. """
-
         ramUsage = self.process.memory_full_info().rss / 1024**2
         before_ws = int(round(self.bot.latency * 1000, 1))
 

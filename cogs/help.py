@@ -14,8 +14,6 @@ class Help(commands.Cog):
     @commands.command(aliases=['commands'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def help(self, ctx):
-        """ Obtén la ayuda sobre el bot """
-
         embed = discord.Embed(color=self.config['blurple'])
         embed.set_author(name='Ejército de Chile', icon_url=self.bot.user.avatar_url)
         embed.add_field(name='Información', value='`about` - Obtén algunas estadísticas del bot\n`help` - Muestra esta lista de comandos\n`ranks` - Obtén la lista de rangos del grupo', inline=False)

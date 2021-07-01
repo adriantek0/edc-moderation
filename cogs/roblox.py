@@ -21,8 +21,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def demote(self, ctx, username):
-        """ Demotea a un usuario del grupo """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -37,8 +35,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def exile(self, ctx, username):
-        """ Exilia a un usuario """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -53,8 +49,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def promote(self, ctx, username):
-        """ Promotea a un usuario del grupo """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -101,8 +95,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def setrank(self, ctx, username, rank: int):
-        """ Establece un rango a un usuario del grupo """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -120,8 +112,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def setrole(self, ctx, username, rank: int):
-        """ Establece un rango a un usuario del grupo """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -139,8 +129,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def shout(self, ctx, *, shout_text):
-        """ Envia un shout al grupo """
-
         if permissions.check_roblox(ctx.message.author) is False:
             return
 
@@ -154,8 +142,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def whois(self, ctx, username):
-        """ Obtén la información de un usuario de Roblox """
-
         try:
             user = await roblox.get_user_by_username(username)
             embed = discord.Embed(color=7506394, title=f'Información de {user.name}')
@@ -177,8 +163,6 @@ class Roblox(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ranks(self, ctx):
-        """ Muestra la lista de rangos del grupo """
-
         try:
             group = await roblox.get_group(self.group)
             description = ''
