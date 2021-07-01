@@ -1,4 +1,5 @@
 import discord
+import re
 
 from utils import default, permissions
 from discord.ext import commands
@@ -237,6 +238,126 @@ class Moderación(commands.Cog):
         
         description += '\n```'
         await ctx.send(content=description)
+    
+    @commands.group()
+    @commands.guild_only()
+    @commands.max_concurrency(1, per=commands.BucketType.guild)
+    async def prune(self, ctx):
+        """ Borra mensajes del servidor. """
+
+        if permissions.check_mod(ctx.message.author) is False:
+            return
+
+        if ctx.invoked_subcommand is None:
+            await ctx.send_help(str(ctx.command))
+    
+    async def do_removal(self, ctx, limit, predicate, *, before=None, after=None, message=True):
+        if limit > 2000:
+            return await ctx.send(f':x: Demasiados mensajes a eliminar ({limit}/2000).')
+
+        if not before:
+            before = ctx.message
+        else:
+            before = discord.Object(id=before)
+
+        if after:
+            after = discord.Object(id=after)
+
+        try:
+            deleted = await ctx.channel.purge(limit=limit, before=before, after=after, check=predicate)
+        except discord.Forbidden:
+            return await ctx.send(':x: No tengo los permisos para borrar mensajes.')
+        except discord.HTTPException as e:
+            return await ctx.send(content=f':x: Ocurrió un error ejecutando el comando.\n```{e}```')
+
+        deleted = len(deleted)
+        if message is True:
+            await ctx.send(f'🚮 Ha{"" if deleted == 1 else "n"} sido eliminado{"" if deleted == 1 else "s"} {deleted} mensaje{"" if deleted == 1 else "s"}.')
+    
+    @prune.command()
+    async def embeds(self, ctx, search=100):
+        """ Elimina los mensajes que tienen embeds """
+        await self.do_removal(ctx, search, lambda e: len(e.embeds))
+
+    @prune.command()
+    async def files(self, ctx, search=100):
+        """ Elimina los mensajes que tienen attachments """
+        await self.do_removal(ctx, search, lambda e: len(e.attachments))
+
+    @prune.command()
+    async def mentions(self, ctx, search=100):
+        """ Elimina los mensajes que tienen menciones """
+        await self.do_removal(ctx, search, lambda e: len(e.mentions) or len(e.role_mentions))
+
+    @prune.command()
+    async def images(self, ctx, search=100):
+        """ Elimina los mensajes que tienen embeds o attachments. """
+        await self.do_removal(ctx, search, lambda e: len(e.embeds) or len(e.attachments))
+
+    @prune.command(name="all")
+    async def _remove_all(self, ctx, search=100):
+        """ Elimina todos los mensajes """
+        await self.do_removal(ctx, search, lambda e: True)
+
+    @prune.command()
+    async def user(self, ctx, member: discord.Member, search=100):
+        """ Elimina todos los mensajes de un usuario """
+        await self.do_removal(ctx, search, lambda e: e.author == member)
+
+    @prune.command()
+    async def contains(self, ctx, *, substr: str):
+        """Elimina todos los mensajes que contienen una subcadena.
+        La subcadena debe tener al menos 3 caracteres.
+        """
+        if len(substr) < 3:
+            await ctx.send(':x: La longitud de la subcadena debe ser de al menos 3 caracteres.')
+        else:
+            await self.do_removal(ctx, 100, lambda e: substr in e.content)
+
+    @prune.command(name="bots")
+    async def _bots(self, ctx, search=100, prefix=None):
+        """ Elimina los mensajes de un usuario de bot y los mensajes con su prefijo opcional """
+
+        getprefix = prefix if prefix else self.config['prefix']
+
+        def predicate(m):
+            return (m.webhook_id is None and m.author.bot) or m.content.startswith(tuple(getprefix))
+
+        await self.do_removal(ctx, search, predicate)
+
+    @prune.command(name="users")
+    async def _users(self, ctx, prefix=None, search=100):
+        """ Elimina solo los mensajes de los usuarios """
+
+        def predicate(m):
+            return m.author.bot is False
+
+        await self.do_removal(ctx, search, predicate)
+
+    @prune.command(name="emojis")
+    async def _emojis(self, ctx, search=100):
+        """ Elimina todos los mensajes que contienen emojis personalizados """
+        custom_emoji = re.compile(r"<a?:(.*?):(\d{17,21})>|[\u263a-\U0001f645]")
+
+        def predicate(m):
+            return custom_emoji.search(m.content)
+
+        await self.do_removal(ctx, search, predicate)
+
+    @prune.command(name="reactions")
+    async def _reactions(self, ctx, search=100):
+        """ Elimina todas las reacciones de los mensajes que las tienen """
+
+        if search > 2000:
+            return await ctx.send(f':x: Demasiados mensajes ({search}/2000).')
+
+        total_reactions = 0
+        async for message in ctx.history(limit=search, before=ctx.message):
+            if len(message.reactions):
+                total_reactions += sum(r.count for r in message.reactions)
+                await message.clear_reactions()
+
+        await ctx.send(f':white_check_mark: Se han eliminado {total_reactions} reacciones correctamente.')
 
 def setup(bot):
     bot.add_cog(Moderación(bot))
